@@ -7,9 +7,9 @@ import org.junit.Test;
 
 import br.puc.se.designPatterns.behavioral.log.LogLevel;
 import br.puc.se.designPatterns.behavioral.log.LogListener;
-import br.puc.se.designPatterns.behavioral.log.strategy.ConsoleLogger;
-import br.puc.se.designPatterns.behavioral.log.strategy.FileLogger;
-import br.puc.se.designPatterns.behavioral.log.strategy.HttpPostLogger;
+import br.puc.se.designPatterns.behavioral.log.strategy.ConsoleOutput;
+import br.puc.se.designPatterns.behavioral.log.strategy.FileOutput;
+import br.puc.se.designPatterns.behavioral.log.strategy.HttpPostOutput;
 
 public class StrategyTest {
 
@@ -17,14 +17,14 @@ public class StrategyTest {
 	public void consoleTest() {
 		LogListener listener = new LogListener();
 
-		ConsoleLogger templateMethodConsoleLogger = new ConsoleLogger();
-		templateMethodConsoleLogger.setLogLevel(LogLevel.ERROR);
-		templateMethodConsoleLogger.addListener(listener);
+		ConcreteLogger strategyConsoleLogger = new ConcreteLogger(new ConsoleOutput());
+		strategyConsoleLogger.setLogLevel(LogLevel.ERROR);
+		strategyConsoleLogger.addListener(listener);
 
-		templateMethodConsoleLogger.log(LogLevel.INFO, "should not log");
-		templateMethodConsoleLogger.log(LogLevel.WARNING, "should not log");
-		templateMethodConsoleLogger.log(LogLevel.ERROR, "should log");
-		templateMethodConsoleLogger.log(LogLevel.FATAL, "should log");
+		strategyConsoleLogger.log(LogLevel.INFO, "should not log");
+		strategyConsoleLogger.log(LogLevel.WARNING, "should not log");
+		strategyConsoleLogger.log(LogLevel.ERROR, "should log");
+		strategyConsoleLogger.log(LogLevel.FATAL, "should log");
 
 		assertEquals(2, listener.getLogs().size());
 	}
@@ -33,14 +33,14 @@ public class StrategyTest {
 	public void fileTest() {
 		LogListener listener = new LogListener();
 
-		FileLogger templateMethodFileLogger = new FileLogger();
-		templateMethodFileLogger.setLogLevel(LogLevel.FATAL);
-		templateMethodFileLogger.addListener(listener);
+		ConcreteLogger strategyFileLogger = new ConcreteLogger(new FileOutput());
+		strategyFileLogger.setLogLevel(LogLevel.FATAL);
+		strategyFileLogger.addListener(listener);
 
-		templateMethodFileLogger.log(LogLevel.INFO, "should not log");
-		templateMethodFileLogger.log(LogLevel.WARNING, "should not log");
-		templateMethodFileLogger.log(LogLevel.ERROR, "should not log");
-		templateMethodFileLogger.log(LogLevel.FATAL, "should log");
+		strategyFileLogger.log(LogLevel.INFO, "should not log");
+		strategyFileLogger.log(LogLevel.WARNING, "should not log");
+		strategyFileLogger.log(LogLevel.ERROR, "should not log");
+		strategyFileLogger.log(LogLevel.FATAL, "should log");
 
 		assertEquals(1, listener.getLogs().size());
 	}
@@ -49,14 +49,14 @@ public class StrategyTest {
 	public void httpTest() {
 		LogListener listener = new LogListener();
 
-		HttpPostLogger templateMethodHttpLogger = new HttpPostLogger();
-		templateMethodHttpLogger.setLogLevel(LogLevel.INFO);
-		templateMethodHttpLogger.addListener(listener);
+		ConcreteLogger strategyHttpLogger = new ConcreteLogger(new HttpPostOutput());
+		strategyHttpLogger.setLogLevel(LogLevel.INFO);
+		strategyHttpLogger.addListener(listener);
 
-		templateMethodHttpLogger.log(LogLevel.INFO, "should log");
-		templateMethodHttpLogger.log(LogLevel.WARNING, "should log");
-		templateMethodHttpLogger.log(LogLevel.ERROR, "should log");
-		templateMethodHttpLogger.log(LogLevel.FATAL, "should log");
+		strategyHttpLogger.log(LogLevel.INFO, "should log");
+		strategyHttpLogger.log(LogLevel.WARNING, "should log");
+		strategyHttpLogger.log(LogLevel.ERROR, "should log");
+		strategyHttpLogger.log(LogLevel.FATAL, "should log");
 
 		assertEquals(4, listener.getLogs().size());
 	}
@@ -65,11 +65,11 @@ public class StrategyTest {
 	public void consoleMessageTest() {
 		LogListener listener = new LogListener();
 
-		ConsoleLogger templateMethodConsoleLogger = new ConsoleLogger();
-		templateMethodConsoleLogger.setLogLevel(LogLevel.ERROR);
-		templateMethodConsoleLogger.addListener(listener);
+		ConcreteLogger strategyConsoleLogger = new ConcreteLogger(new ConsoleOutput());
+		strategyConsoleLogger.setLogLevel(LogLevel.ERROR);
+		strategyConsoleLogger.addListener(listener);
 
-		templateMethodConsoleLogger.log(LogLevel.ERROR, "should log");
+		strategyConsoleLogger.log(LogLevel.ERROR, "should log");
 
 		assertEquals(1, listener.getLogs().size());
 		for (String message : listener.getLogs()) {
@@ -84,20 +84,22 @@ public class StrategyTest {
 	public void fileMessageTest() {
 		LogListener listener = new LogListener();
 
-		FileLogger templateMethodFileLogger = new FileLogger();
-		templateMethodFileLogger.setLogLevel(LogLevel.ERROR);
-		templateMethodFileLogger.addListener(listener);
+		ConcreteLogger strategyFileLogger = new ConcreteLogger(new FileOutput());
+		strategyFileLogger.setLogLevel(LogLevel.ERROR);
+		strategyFileLogger.addListener(listener);
 
-		templateMethodFileLogger.log(LogLevel.INFO, "should not log");
-		templateMethodFileLogger.log(LogLevel.ERROR, "should log");
+		strategyFileLogger.log(LogLevel.INFO, "should not log");
+		strategyFileLogger.log(LogLevel.ERROR, "should log");
 
 		assertEquals(1, listener.getLogs().size());
 		for (String message : listener.getLogs()) {
+			FileOutput output = (FileOutput) strategyFileLogger.getOutput();
+			
 			assertTrue("should contains the message ['should log']", message.contains("should log"));
 			assertTrue(
 					"should contains the logger name '[Logger: FileLogger on "
-							+ templateMethodFileLogger.getFileName() + "]'",
-					message.contains("[Logger: FileLogger on "+ templateMethodFileLogger.getFileName() +"]"));
+							+ output.getFileName() + "]'",
+					message.contains("[Logger: FileLogger on "+ output.getFileName() +"]"));
 			assertTrue("should contains the log level ':ERROR:'", message.contains(":ERROR:"));
 		}
 	}
@@ -106,19 +108,21 @@ public class StrategyTest {
 	public void httpMessageTest() {
 		LogListener listener = new LogListener();
 
-		HttpPostLogger templateMethodHttpLogger = new HttpPostLogger();
-		templateMethodHttpLogger.setLogLevel(LogLevel.DEBUG);
-		templateMethodHttpLogger.addListener(listener);
+		ConcreteLogger strategyHttpLogger = new ConcreteLogger(new HttpPostOutput());
+		strategyHttpLogger.setLogLevel(LogLevel.DEBUG);
+		strategyHttpLogger.addListener(listener);
 
-		templateMethodHttpLogger.log(LogLevel.DEBUG, "should log");
+		strategyHttpLogger.log(LogLevel.DEBUG, "should log");
 
 		assertEquals(1, listener.getLogs().size());
 		for (String message : listener.getLogs()) {
+			HttpPostOutput output = (HttpPostOutput) strategyHttpLogger.getOutput();
+			
 			assertTrue("should contains the message ['should log']", message.contains("should log"));
 			assertTrue(
 					"should contains the logger name '[Logger: HttpPostLogger on "
-							+ templateMethodHttpLogger.getUri() + "]'",
-					message.contains("[Logger: HttpPostLogger on "+ templateMethodHttpLogger.getUri() +"]"));
+							+ output.getUri() + "]'",
+					message.contains("[Logger: HttpPostLogger on "+ output.getUri() +"]"));
 			assertTrue("should contains the log level ':DEBUG:'", message.contains(":DEBUG:"));
 		}
 	}
