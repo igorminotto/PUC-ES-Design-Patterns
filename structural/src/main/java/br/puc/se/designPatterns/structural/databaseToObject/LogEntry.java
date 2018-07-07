@@ -5,11 +5,15 @@ import java.util.List;
 
 public class LogEntry {
 	
-	private List<LogEvent> events;
+	private List<LogEvent> events = null;
 	
 	private Date timestamp;
 
 	public List<LogEvent> getEvents() {
+		if(this.events == null) {
+			List<LogEvent> events = DatabaseUtils.getEventsFromEntry(this);
+			this.setEvents(events);
+		}
 		return events;
 	}
 

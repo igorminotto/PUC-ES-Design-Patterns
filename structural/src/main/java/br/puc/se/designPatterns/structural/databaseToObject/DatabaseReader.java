@@ -9,7 +9,7 @@ public class DatabaseReader {
 
 	public List<LogEntry>  readFromDate(DateRange dateRange) {
 		// hit the database and fill the object with the values from database
-		return DatabaseUtils.getentryFromDate(dateRange);
+		return DatabaseUtils.getEntriesFromDate(dateRange);
 	}
 	
 }
